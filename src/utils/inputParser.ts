@@ -1,26 +1,22 @@
-import { DeliveryRequestInput, PackageInput } from "../types";
+import { DeliveryRequestInput, PackageInput } from '../types/index';
 
-export const parseInputStrings = (
-    baseLine: string,
-    packageLines: string[]
-): DeliveryRequestInput => {
-    const [baseCostStr, noOfPackagesStr] = baseLine.trim().split(" ");
-    const baseCost = parseInt(baseCostStr);
-    const noOfPackages = parseInt(noOfPackagesStr);
+export function parseInputStrings(baseLine: string, packageLines: string[]): DeliveryRequestInput {
+    const [baseCostStr, noOfPackagesStr] = baseLine.trim().split(' ');
+    const baseCost = Number(baseCostStr);
+    const noOfPackages = Number(noOfPackagesStr);
 
-    const packages: PackageInput[] = packageLines.map((line) => {
-        const [id, weightStr, distanceStr, offerCode] = line.trim().split(" ");
+    const packages: PackageInput[] = packageLines.map(line => {
+        const [id, weightStr, distanceStr, offerCode] = line.trim().split(' ');
         return {
             id,
-            weight: parseFloat(weightStr),
-            distance: parseFloat(distanceStr),
-            offerCode,
+            weight: Number(weightStr),
+            distance: Number(distanceStr),
+            offerCode: offerCode || null,
+            discount: 0,
+            totalCost: 0,
+            deliveryTime: null
         };
     });
 
-    return {
-        baseCost,
-        noOfPackages,
-        packages,
-    };
-};
+    return { baseCost, noOfPackages, packages };
+}

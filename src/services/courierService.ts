@@ -1,4 +1,4 @@
-import { Package } from '../models/package';
+import { PackageInput } from '../types/index';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -12,9 +12,9 @@ export class CourierService {
         this.maxLoad = parseFloat(process.env.VEHICLE_MAX_LOAD || '200');
     }
 
-    estimateDeliveryTime(pkg: Package): number {
+    estimateDeliveryTime(pkg: PackageInput): number {
         const time = pkg.distance / this.maxSpeed;
-        return parseFloat(time.toFixed(2));
+        return Math.floor(time);
     }
 
     getMaxLoad(): number {

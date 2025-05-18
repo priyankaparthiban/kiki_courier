@@ -1,8 +1,8 @@
 
-import { Package } from '../models/package';
-import { COST_PER_KG, COST_PER_KM, BASE_DELIVERY_COST } from '../utils/config';
+import { PackageInput } from '../types/index';
+import { COST_PER_KG, COST_PER_KM } from '../utils/config';
 export class DeliveryCostCalculator {
-    private baseDeliveryCost: number = BASE_DELIVERY_COST;
+    private baseDeliveryCost: number;
     private costPerKg: number = COST_PER_KG;
     private costPerKm: number = COST_PER_KM;
 
@@ -10,7 +10,7 @@ export class DeliveryCostCalculator {
         this.baseDeliveryCost = baseDeliveryCost;
     }
 
-    calculateDeliveryCost(pkg: Package): number {
+    calculateDeliveryCost(pkg: PackageInput): number {
         return (
             this.baseDeliveryCost +
             pkg.weight * this.costPerKg +

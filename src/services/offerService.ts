@@ -1,4 +1,4 @@
-import { Offer } from '../models/offer';
+import { Offer } from '../types/index';
 import { getOffersFromEnv } from '../utils/config';
 
 export class OfferService {

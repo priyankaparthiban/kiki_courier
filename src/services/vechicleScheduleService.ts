@@ -1,5 +1,4 @@
-import { Vehicle } from '../models/vehicle';
-import { Package } from '../models/package';
+import { PackageInput, Vehicle } from '../types/index';
 
 export class Scheduler {
     private vehicles: Vehicle[];
@@ -8,8 +7,8 @@ export class Scheduler {
         this.vehicles = vehicles;
     }
 
-    schedulePackages(packages: Package[]): Package[] {
-        const scheduled: Package[] = [];
+    schedulePackages(packages: PackageInput[]): PackageInput[] {
+        const scheduled: PackageInput[] = [];
         const pending = [...packages];
 
         while (pending.length) {
@@ -45,10 +44,10 @@ export class Scheduler {
         );
     }
 
-    private selectPackages(pending: Package[], maxWeight: number) {
-        const allCombos: Package[][] = [];
+    private selectPackages(pending: PackageInput[], maxWeight: number) {
+        const allCombos: PackageInput[][] = [];
 
-        const generateCombos = (start: number, combo: Package[]) => {
+        const generateCombos = (start: number, combo: PackageInput[]) => {
             const totalWeight = combo.reduce((sum, p) => sum + p.weight, 0);
             if (combo.length > 0 && totalWeight <= maxWeight) {
                 allCombos.push([...combo]);

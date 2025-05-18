@@ -1,12 +1,21 @@
 import { CourierService } from '../services/courierService';
-import { Package } from '../models/package';
+import { PackageInput } from '../types/index';
 
 describe('CourierService', () => {
     it('should estimate delivery time based on distance and speed', () => {
         const courierService = new CourierService();
-        const pkg = new Package('PKG1', 50, 140);
-        const deliveryTime = courierService.estimateDeliveryTime(pkg);
 
+        const pkg: PackageInput = {
+            id: 'PKG1',
+            weight: 50,
+            distance: 140,
+            offerCode: null,
+            discount: 0,
+            totalCost: 0,
+            deliveryTime: null
+        };
+
+        const deliveryTime = courierService.estimateDeliveryTime(pkg);
         expect(deliveryTime).toBeCloseTo(2, 2);
     });
 
