@@ -1,5 +1,5 @@
 import dotenv from 'dotenv';
-import { Offer } from '../models/offer';
+import { Offer } from '../types/index';
 
 dotenv.config();
 
@@ -32,9 +32,14 @@ export function getOffersFromEnv(): Offer[] {
             !isNaN(minDistance) &&
             !isNaN(maxDistance)
         ) {
-            offers.push(
-                new Offer(code, discountPercent, minWeight, maxWeight, minDistance, maxDistance)
-            );
+            offers.push({
+                code,
+                discountPercent,
+                minWeight,
+                maxWeight,
+                minDistance,
+                maxDistance,
+            });
         }
     }
 
