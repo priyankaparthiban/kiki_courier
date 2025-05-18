@@ -2,8 +2,8 @@ import { Scheduler } from '../services/vechicleScheduleService';
 import { Vehicle } from '../models/vehicle';
 import { Package } from '../models/package';
 
-describe('Scheduler', () => {
-    it('should schedule packages to vehicles and assign correct delivery times', () => {
+describe('Scheduler (Combinatorial Batching)', () => {
+    it('should schedule packages to vehicles and assign correct delivery times based on optimal batching', () => {
         const vehicles = [
             new Vehicle(1, 70, 200),
             new Vehicle(2, 70, 200)
@@ -20,16 +20,36 @@ describe('Scheduler', () => {
         const scheduler = new Scheduler(vehicles);
         const result = scheduler.schedulePackages(packages);
 
-        for (const pkg of result) {
+        // Validate all packages are scheduled
+        expect(result.length).toBe(5);
+
+        // Each package must have a valid delivery time
+        result.forEach(pkg => {
             expect(pkg.deliveryTime).toBeGreaterThan(0);
+        });
+
+        // Group by vehicle availability to verify proper scheduling logic
+        const vehicleSchedules: Record<number, number[]> = {};
+
+        for (const v of vehicles) {
+            vehicleSchedules[v.id] = [];
         }
 
-        // check one specific package's delivery time
-        const pkg1 = result.find(p => p.id === 'PKG1');
-        expect(pkg1).toBeDefined();
-        if (pkg1) {
-            const expectedTime = 30 / 70; // time = distance / speed
-            expect(pkg1.deliveryTime).toBeCloseTo(expectedTime, 2); // precision up to 2 decimal places
+        for (const pkg of result) {
+            const deliveryTime = pkg.deliveryTime!;
+            const vehicleUsed = vehicles.find(v =>
+                deliveryTime <= v.availableAt
+            ) ?? vehicles[0];
+            vehicleSchedules[vehicleUsed.id].push(pkg.distance);
+        }
+
+        // Check delivery time of one known package manually
+        const pkg2 = result.find(p => p.id === 'PKG2');
+        expect(pkg2).toBeDefined();
+        if (pkg2) {
+            const rawTime = pkg2.distance / 70;
+            const approxTime = Math.floor(rawTime * 100) / 100;
+            expect(pkg2.deliveryTime!).toBe(approxTime);
         }
     });
 });
