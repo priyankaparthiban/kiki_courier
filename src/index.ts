@@ -11,17 +11,20 @@ function askChoice() {
     console.log('\nSelect operation:');
     console.log('1. Delivery Cost Estimation Only');
     console.log('2. Delivery Cost + Time Estimation with Vehicle Scheduling');
+    console.log('3. Combined Input Handling (Auto-detects if vehicle info is present)');
 
-    rl.question('Enter choice (1 or 2): ', (choice) => {
+    rl.question('Enter choice (1, 2, or 3): ', (choice) => {
         const scriptPath =
             choice === '1'
                 ? path.join(__dirname, 'cli/cost-estimation.ts')
                 : choice === '2'
                     ? path.join(__dirname, 'cli/delivery-estimation.ts')
-                    : null;
+                    : choice === '3'
+                        ? path.join(__dirname, 'cli/combined-input.ts')
+                        : null;
 
         if (!scriptPath) {
-            console.error('\n Invalid choice. Please enter 1 or 2.\n');
+            console.error('\n Invalid choice. Please enter 1, 2, or 3.\n');
             return askChoice(); // Retry
         }
 
