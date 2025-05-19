@@ -1,7 +1,4 @@
 import readline from 'readline';
-import dotenv from 'dotenv';
-dotenv.config();
-
 import { parseInputStrings } from '../utils/inputParser';
 import { DeliveryCostCalculator } from '../services/deliveryCalculator';
 import { OfferService } from '../services/offerService';
