@@ -4,6 +4,7 @@ import { DeliveryResult, Vehicle } from '../types/index';
 import { DeliveryCostCalculator } from '../services/deliveryCalculator';
 import { OfferService } from '../services/offerService';
 import { Scheduler } from '../services/vechicleScheduleService';
+import { parseVehicleInput } from '../utils/inputParser';
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -94,17 +95,7 @@ rl.on('close', () => {
         });
 
         // Parse vehicle info
-        const [vehicleCountStr, maxSpeedStr, maxLoadStr] = vehicleInput.split(' ');
-        const vehicleCount = Number(vehicleCountStr);
-        const maxSpeed = Number(maxSpeedStr);
-        const maxLoad = Number(maxLoadStr);
-
-        const vehicles: Vehicle[] = Array.from({ length: vehicleCount }, (_, i) => ({
-            id: i + 1,
-            maxSpeed,
-            maxWeight: maxLoad,
-            availableAt: 0
-        }));
+        const vehicles: Vehicle[] = parseVehicleInput(vehicleInput);
 
         const scheduler = new Scheduler(vehicles);
 

@@ -4,6 +4,7 @@ import { DeliveryCostCalculator } from '../services/deliveryCalculator';
 import { OfferService } from '../services/offerService';
 import { Scheduler } from '../services/vechicleScheduleService';
 import { DeliveryResult, Vehicle } from '../types/index';
+import { parseVehicleInput } from '../utils/inputParser';
 
 const rl = readline.createInterface({
     input: process.stdin,
@@ -56,21 +57,10 @@ rl.on('line', (line) => {
         }
 
         // Cost + Delivery time estimation mode
-        const [vehicleCountStr, speedStr, weightStr] = inputLines[inputLines.length - 1].split(' ');
-        const vehicleCount = Number(vehicleCountStr);
-        const maxSpeed = Number(speedStr);
-        const maxWeight = Number(weightStr);
+        const vehicleInput = inputLines[inputLines.length - 1];
+        const vehicles: Vehicle[] = parseVehicleInput(vehicleInput);
 
-        if (isNaN(vehicleCount) || isNaN(maxSpeed) || isNaN(maxWeight)) {
-            throw new Error('Invalid vehicle input.');
-        }
-
-        const vehicles: Vehicle[] = Array.from({ length: vehicleCount }, (_, i) => ({
-            id: i + 1,
-            maxSpeed,
-            maxWeight,
-            availableAt: 0
-        })); const scheduler = new Scheduler(vehicles);
+        const scheduler = new Scheduler(vehicles);
         const scheduledPackages = scheduler.schedulePackages(packages);
 
         // Output result

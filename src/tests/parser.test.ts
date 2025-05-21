@@ -1,5 +1,5 @@
-import { parseInputStrings } from "../utils/inputParser";
-import { PackageInput } from '../types/index';
+import { parseInputStrings, parseVehicleInput } from "../utils/inputParser";
+import { PackageInput, Vehicle } from '../types/index';
 
 describe("Input Parser", () => {
     it("should parse base cost and package info from input strings", () => {
@@ -31,5 +31,26 @@ describe("Input Parser", () => {
 
         expect(result.packages[0]).toMatchObject(expectedPkg1);
         expect(result.packages[1]).toMatchObject(expectedPkg2);
+    });
+
+    it("should parse valid vehicle input", () => {
+        const input = "2 70 200";
+        const result = parseVehicleInput(input);
+
+        expect(result).toHaveLength(2);
+
+        const expectedVehicle: Partial<Vehicle> = {
+            maxSpeed: 70,
+            maxWeight: 200,
+            availableAt: 0,
+        };
+
+        expect(result[0]).toMatchObject({ id: 1, ...expectedVehicle });
+        expect(result[1]).toMatchObject({ id: 2, ...expectedVehicle });
+    });
+
+    it("should throw an error for invalid vehicle input", () => {
+        expect(() => parseVehicleInput("two 70 200")).toThrow("Invalid vehicle input.");
+        expect(() => parseVehicleInput("1 70")).toThrow("Invalid vehicle input.");
     });
 });
