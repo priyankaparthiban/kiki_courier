@@ -1,81 +1,60 @@
-import readline from 'readline';
-import { parseInputStrings } from '../utils/inputParser';
-import { DeliveryCostCalculator } from '../services/deliveryCalculator';
-import { OfferService } from '../services/offerService';
-import { Scheduler } from '../services/vechicleScheduleService';
-import { DeliveryResult, Vehicle } from '../types/index';
-import { parseVehicleInput } from '../utils/inputParser';
+import { parseInputStrings, parseVehicleInput, } from '../utils';
+import { askMultilineInput, createInterface, outputResults, createDeliveryCalculator, handleError } from './helpers'
+import {
+    CostCalculator,
+    OfferService,
+    DeliveryCostCalculator,
+    VehicleScheduler,
+} from '../services';
+import { DeliveryResult, IVehicle } from '../types';
 
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout,
-});
+async function main() {
+    const rl = createInterface();
 
-const inputLines: string[] = [];
-
-console.log('Enter input:');
-
-rl.on('line', (line) => {
-    inputLines.push(line.trim());
-}).on('close', () => {
     try {
-        if (inputLines.length < 2) {
-            throw new Error('Insufficient input lines.');
-        }
+        // Step 1: Get multiline input
+        const { baseCost, noOfPackages, lines } = await askMultilineInput(rl);
 
-        const [baseCostStr, noOfPackagesStr] = inputLines[0].split(' ');
-        const baseCost = Number(baseCostStr);
-        const noOfPackages = Number(noOfPackagesStr);
+        // Step 2: Split lines for packages and vehicles
+        const packageLines = lines.slice(1, 1 + noOfPackages);
+        const vehicleLine = lines[1 + noOfPackages];
+        const hasVehicleInfo = Boolean(vehicleLine);
 
-        if (isNaN(baseCost) || isNaN(noOfPackages)) {
-            throw new Error('Invalid base cost or number of packages.');
-        }
+        // Step 3: Parse input data
+        const { packages: inputPackages } = parseInputStrings(lines[0], packageLines);
 
-        const packageLines = inputLines.slice(1, 1 + noOfPackages);
-        const hasVehicleInfo = inputLines.length === 1 + noOfPackages + 1;
-
-        const { packages } = parseInputStrings(inputLines[0], packageLines);
-
-        const costCalculator = new DeliveryCostCalculator(baseCost);
+        // Step 4: Instantiate required services
+        const baseCostCalculator = new CostCalculator(baseCost);
         const offerService = new OfferService();
 
-        // Apply cost and discount to each package
-        packages.forEach(pkg => {
-            const cost = costCalculator.calculateDeliveryCost(pkg);
-            const discount = pkg.offerCode === 'NA' ? 0 : offerService.getDiscount(pkg.offerCode || '', cost, pkg.weight, pkg.distance);
-            pkg.discount = discount;
-            pkg.totalCost = cost - discount;
-        });
+        let deliveryCalculator: DeliveryCostCalculator;
 
-        if (!hasVehicleInfo) {
-            // Only cost estimation mode
+        if (hasVehicleInfo) {
+            const vehicles: IVehicle[] = parseVehicleInput(vehicleLine);
+            const vehicleScheduler = new VehicleScheduler(vehicles);
+
+            deliveryCalculator = createDeliveryCalculator(baseCost, vehicles)
+
+            // Step 5: Get cost + time estimation
+            const results: DeliveryResult[] = deliveryCalculator.getCostAndTimeEstimation(inputPackages, vehicles);
+
+            // Step 6: Output results
             console.log('\nOutput:');
-            packages.forEach(pkg => {
-                console.log(`${pkg.id} ${Math.round(pkg.discount)} ${Math.round(pkg.totalCost)}`);
-            });
-            return;
+            outputResults(results);
+        } else {
+            deliveryCalculator = createDeliveryCalculator(baseCost)
+            // Step 5: Get cost estimation
+            const results: DeliveryResult[] = deliveryCalculator.getCostEstimation(inputPackages);
+
+            // Step 6: Output results
+            console.log('\nOutput:');
+            outputResults(results);
         }
-
-        // Cost + Delivery time estimation mode
-        const vehicleInput = inputLines[inputLines.length - 1];
-        const vehicles: Vehicle[] = parseVehicleInput(vehicleInput);
-
-        const scheduler = new Scheduler(vehicles);
-        const scheduledPackages = scheduler.schedulePackages(packages);
-
-        // Output result
-        console.log('\nOutput:');
-        scheduledPackages.forEach(pkg => {
-            const result: DeliveryResult = {
-                id: pkg.id,
-                discount: Math.round(pkg.discount),
-                totalCost: Math.round(pkg.totalCost),
-                deliveryTime: parseFloat(pkg.deliveryTime?.toFixed(2) || '0.00')
-            };
-
-            console.log(`${result.id} ${result.discount} ${result.totalCost} ${result.deliveryTime}`);
-        });
-    } catch (err: any) {
-        console.error('Error:', err.message || err);
+    } catch (err) {
+        handleError(err);
+    } finally {
+        rl.close();
     }
-});
+}
+
+main();

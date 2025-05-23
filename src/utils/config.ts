@@ -1,13 +1,31 @@
 import dotenv from 'dotenv';
 import { Offer } from '../types/index';
+import { InvalidEnvVariableException } from '../exceptions';
 
 dotenv.config();
-
-function getEnvNumber(key: string, defaultValue: number): number {
+function parseOfferConfig(code: string): Offer {
+    return {
+        code,
+        discountPercent: getEnvNumber(`${code}_DISCOUNT_PERCENT`),
+        minWeight: getEnvNumber(`${code}_MIN_WEIGHT`),
+        maxWeight: getEnvNumber(`${code}_MAX_WEIGHT`),
+        minDistance: getEnvNumber(`${code}_MIN_DISTANCE`),
+        maxDistance: getEnvNumber(`${code}_MAX_DISTANCE`),
+    };
+}
+function getEnvNumber(key: string, defaultValue?: number): number {
     const val = process.env[key];
-    if (!val) return defaultValue;
+
+    if (val === undefined || val === '') {
+        if (defaultValue !== undefined) return defaultValue;
+        throw new InvalidEnvVariableException(key, 'Value is required but missing');
+    }
+
     const parsed = Number(val);
-    if (isNaN(parsed)) throw new Error(`Env var ${key} is not a valid number`);
+    if (isNaN(parsed)) {
+        throw new InvalidEnvVariableException(key, 'Not a valid number');
+    }
+
     return parsed;
 }
 
@@ -16,30 +34,13 @@ export const COST_PER_KM = getEnvNumber('COST_PER_KM', 5);
 
 export function getOffersFromEnv(): Offer[] {
     const offers: Offer[] = [];
-    const offerCodes = process.env.OFFERS?.split(',') || [];
+    const offerCodes = process.env.OFFERS?.split(',').map(code => code.trim()) || [];
 
     for (const code of offerCodes) {
-        const discountPercent = Number(process.env[`${code}_DISCOUNT_PERCENT`]);
-        const minWeight = Number(process.env[`${code}_MIN_WEIGHT`]);
-        const maxWeight = Number(process.env[`${code}_MAX_WEIGHT`]);
-        const minDistance = Number(process.env[`${code}_MIN_DISTANCE`]);
-        const maxDistance = Number(process.env[`${code}_MAX_DISTANCE`]);
-
-        if (
-            !isNaN(discountPercent) &&
-            !isNaN(minWeight) &&
-            !isNaN(maxWeight) &&
-            !isNaN(minDistance) &&
-            !isNaN(maxDistance)
-        ) {
-            offers.push({
-                code,
-                discountPercent,
-                minWeight,
-                maxWeight,
-                minDistance,
-                maxDistance,
-            });
+        try {
+            offers.push(parseOfferConfig(code));
+        } catch (error) {
+            console.warn(`Skipping invalid offer config for code "${code}": ${(error as Error).message}`);
         }
     }
 

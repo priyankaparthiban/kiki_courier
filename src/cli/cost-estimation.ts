@@ -1,76 +1,31 @@
-import { PackageInput, DeliveryResult } from '../types/index';
-import { DeliveryCostCalculator } from '../services/deliveryCalculator';
-import { OfferService } from '../services/offerService';
-import * as readline from 'readline';
-
-const rl = readline.createInterface({
-    input: process.stdin,
-    output: process.stdout
-});
-
-const offerService = new OfferService();
-
-const prompt = (query: string): Promise<string> => {
-    return new Promise(resolve => rl.question(query, resolve));
-};
-
+import { parseInputStrings } from '../utils';
+import { askBaseDetails, askPackageDetails, createInterface, outputResults, createDeliveryCalculator, handleError } from './helpers'
+import { DeliveryResult } from '../types';
 async function main() {
+    const rl = createInterface();
+
     try {
+        // Step 1: Ask for base cost and number of packages
+        const { baseCost, noOfPackages } = await askBaseDetails(rl);
 
-        const baseInput = await prompt('Enter base delivery cost and number of packages: ');
-        const [baseCostStr, pkgCountStr] = baseInput.trim().split(' ');
-        const baseCost = Number(baseCostStr);
-        const pkgCount = Number(pkgCountStr);
+        // Step 2: Ask for package details
+        const packageInputs = await askPackageDetails(rl, noOfPackages);
 
-        if (isNaN(baseCost) || isNaN(pkgCount)) {
-            console.error('Invalid input. Expected: <base_cost> <number_of_packages>');
-            rl.close();
-            return;
-        }
+        // Step 3: Parse string inputs into usable data
+        const { packages } = parseInputStrings(`${baseCost} ${noOfPackages}`, packageInputs);
 
-        const calculator = new DeliveryCostCalculator(baseCost);
-        const packages: PackageInput[] = [];
+        // Step 4: Instantiate required services
+        const deliveryCalculator = createDeliveryCalculator(baseCost)
 
-        for (let i = 0; i < pkgCount; i++) {
-            const pkgInput = await prompt(`Enter package ${i + 1} details (id weight distance offer_code): `);
-            const [id, weightStr, distanceStr, offerCode] = pkgInput.trim().split(' ');
+        // Step 5: Get cost estimation
+        const results: DeliveryResult[] = deliveryCalculator.getCostEstimation(packages);
 
-            const weight = Number(weightStr);
-            const distance = Number(distanceStr);
-
-            if (!id || isNaN(weight) || isNaN(distance)) {
-                console.error(`Invalid input for package ${i + 1}. Skipping...`);
-                continue;
-            }
-
-            packages.push({
-                id,
-                weight,
-                distance,
-                offerCode: offerCode || null,
-                discount: 0,
-                totalCost: 0,
-                deliveryTime: null,
-            });
-        }
-
+        // Step 6: Output results
         console.log('\nOutput:');
-        for (const pkg of packages) {
-            const baseDeliveryCost = calculator.calculateDeliveryCost(pkg);
-            const discount = offerService.getDiscount(pkg.offerCode || '', baseDeliveryCost, pkg.weight, pkg.distance);
-            const totalCost = Math.round(baseDeliveryCost - discount);
+        outputResults(results);
 
-            const result: DeliveryResult = {
-                id: pkg.id,
-                discount: Math.round(discount),
-                totalCost
-            };
-
-            console.log(`${result.id} ${result.discount} ${result.totalCost}`);
-        }
-    }
-    catch (error: any) {
-        console.error('An unexpected error occurred:', error.message || error);
+    } catch (err) {
+        handleError(err);
     } finally {
         rl.close();
     }
