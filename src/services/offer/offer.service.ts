@@ -6,7 +6,7 @@ import { InvalidOfferConfigException } from '../../exceptions';
 export class OfferService {
     private offers: IOffer[];
 
-    constructor(offers?: IOffer[]) {
+    constructor() {
         const rawOffers: Offer[] = getOffersFromEnv();
 
         try {

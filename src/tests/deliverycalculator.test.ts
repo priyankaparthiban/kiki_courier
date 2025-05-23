@@ -5,7 +5,6 @@ import { Package } from '../models';
 import { COST_PER_KG, COST_PER_KM } from '../utils/config';
 import { PackageData } from '../types';
 import { OfferService, VehicleScheduler } from '../services';
-import { InvalidPackageDetailsException } from '../exceptions';
 
 describe('costCalculator Service', () => {
     const baseCost = 100;
