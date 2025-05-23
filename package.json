@@ -7,7 +7,8 @@
     "build": "tsc",
     "start": "ts-node src/index.ts",
     "test": "jest --config src/jest.config.ts",
-    "lint": "tsx eslint.config.ts && eslint . --ext .ts"
+    "lint": "tsx eslint.config.ts && eslint . --ext .ts",
+    "lint:fix": "tsx eslint.config.ts && eslint . --ext .ts --fix"
   },
   "jest": {
     "transform": {
