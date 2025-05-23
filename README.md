@@ -183,3 +183,19 @@ To run tests:
 npm test
 ```
 This will execute all tests in the src/tests/ directory.
+
+## Code Quality & Linting
+
+This project uses ESLint with a TypeScript-friendly configuration to ensure consistent code quality and adherence to best practices.
+
+To check for linting issues:
+
+```bash
+npm run lint
+```
+
+To automatically fix lint issues:
+
+```bash
+npm run lint:fix
+```
