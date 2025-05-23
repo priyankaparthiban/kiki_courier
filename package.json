@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc",
     "start": "ts-node src/index.ts",
-    "test": "jest --config src/jest.config.ts"
+    "test": "jest --config src/jest.config.ts",
+    "lint": "tsx eslint.config.ts && eslint . --ext .ts"
   },
   "jest": {
     "transform": {
@@ -17,11 +18,18 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@eslint/js": "^9.27.0",
     "@types/jest": "^29.5.14",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.32.1",
+    "eslint": "^9.27.0",
     "jest": "^29.7.0",
+    "jiti": "^2.4.2",
     "ts-jest": "^29.3.3",
     "ts-node": "^10.9.2",
-    "typescript": "^5.8.3"
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1"
   },
   "dependencies": {
     "dotenv": "^16.5.0",
