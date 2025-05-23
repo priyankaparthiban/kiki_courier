@@ -22,6 +22,45 @@ This project simulates a courier service that calculates the delivery cost and t
 - Offer code-based discounts
 - Fully unit-tested
 
+
+## Project Structure & Design Principles
+
+This project follows **Clean Architecture** and **SOLID principles**, with clear separation of concerns:
+
+| Folder/File                    | Purpose                                                                 |
+|-------------------------------|-------------------------------------------------------------------------|
+| `.env`, `.env.sample`         | Configuration for sensitive or environment-specific values              |
+| `README.md`                   | Project overview, setup, and usage instructions                         |
+| `package.json`, `tsconfig.json` | Project metadata, dependencies, and TypeScript compiler configuration  |
+| `src/index.ts`                | Entry point of the CLI application                                      |
+| `src/cli/`                    | Handles different CLI input modes and user prompts                      |
+| `src/cli/helpers/`            | Shared CLI utility functions like input handling and execution flow     |
+| `src/models/`                 | Domain models — represent core entities and encapsulate behavior        |
+| `src/services/`              | Business logic orchestration — implement rules using models             |
+| `src/services/offer/`         | Offer-specific logic and discount calculations                          |
+| `src/services/delivery/`      | Cost and time estimation logic for deliveries                           |
+| `src/services/vehicle/`       | Vehicle scheduling and availability management                          |
+| `src/utils/`                  | Utility functions (e.g. config loader, input parser)                    |
+| `src/types/`                  | Shared TypeScript type definitions                                      |
+| `src/exceptions/`            | Custom exceptions for domain and application error handling             |
+| `src/tests/`                  | Unit tests for all components                                           |
+| `src/jest.config.ts`          | Jest configuration for running tests                                   |
+
+---
+
+### Models vs. Services
+
+- **Models** (`src/models/`):
+  - Represent domain entities with **data and entity-specific logic**.
+  - Example: `OfferModel` includes methods like `isApplicable()` and `calculateDiscount()` — logic specific to the offer’s rules and discount behavior.
+  - Promotes **encapsulation** and **testability**.
+
+- **Services** (`src/services/`):
+  - Implement **core business processes** using multiple models.
+  - Example: `VehicleSchedulerService` schedules packages across vehicles by interacting with multiple models and applying delivery rules.
+
+---
+
 ## Installation
 
 1. Clone the repository:
@@ -46,7 +85,7 @@ Create a .env file in the root directory by copying .env.sample
 npm start
 ```
 
-5. Sample Input and Output
+## Sample Input and Output
 
 Option 1
 ```bash
@@ -134,3 +173,13 @@ PKG3 0 2350
 PKG4 105 1395
 PKG5 0 2125
 ```
+## Running Tests
+
+Unit tests are written using Jest.
+
+To run tests:
+
+```bash
+npm test
+```
+This will execute all tests in the src/tests/ directory.
