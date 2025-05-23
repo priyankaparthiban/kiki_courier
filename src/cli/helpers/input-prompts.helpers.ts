@@ -97,7 +97,7 @@ export const askMultilineInput = async (
     return new Promise((resolve, reject) => {
         const lines: string[] = [];
 
-        console.log('Enter input lines(vehicle info - optional). Press Ctrl+D when done:');
+        console.log('Enter input lines(vehicle info - optional). Press Enter & Ctrl+D when done:');
 
         rl.on('line', (line) => {
             lines.push(line.trim());
