@@ -1,55 +1,64 @@
-import { OfferService } from '../services/offerService';
+import { OfferModel, Package } from '../models';
+import { OfferService } from '../services';
+describe('OfferModel', () => {
+    const offerData = {
+        code: 'DISCOUNT10',
+        discountPercent: 10,
+        minWeight: 1,
+        maxWeight: 100,
+        minDistance: 10,
+        maxDistance: 500,
+    };
+    const offer = new OfferModel(offerData);
 
-describe('OfferService - Environment Based Offers', () => {
-    beforeEach(() => {
-        process.env.OFFERS = 'OFR001,OFR002';
-
-        process.env.OFR001_DISCOUNT_PERCENT = '10';
-        process.env.OFR001_MIN_WEIGHT = '70';
-        process.env.OFR001_MAX_WEIGHT = '200';
-        process.env.OFR001_MIN_DISTANCE = '0';
-        process.env.OFR001_MAX_DISTANCE = '199';
-
-        process.env.OFR002_DISCOUNT_PERCENT = '7';
-        process.env.OFR002_MIN_WEIGHT = '100';
-        process.env.OFR002_MAX_WEIGHT = '250';
-        process.env.OFR002_MIN_DISTANCE = '50';
-        process.env.OFR002_MAX_DISTANCE = '150';
+    test('should create an OfferModel instance', () => {
+        expect(offer).toBeInstanceOf(OfferModel);
+        expect(offer.code).toBe(offerData.code);
+        expect(offer.discountPercent).toBe(offerData.discountPercent);
     });
 
-    it('should apply correct discount for OFR001 when applicable', () => {
-        const offerService = new OfferService();
-        const baseCost = 300;
-        const weight = 100;
-        const distance = 50;
-
-        const discount = offerService.getDiscount('OFR001', baseCost, weight, distance);
-        expect(discount).toBe(30);
+    test('should return true if offer is applicable', () => {
+        expect(offer.isApplicable(50, 100)).toBe(true);
     });
 
-    it('should apply 0 discount for OFR001 when not applicable', () => {
-        const offerService = new OfferService();
-        const baseCost = 300;
-        const weight = 50;
-        const distance = 50;
-
-        const discount = offerService.getDiscount('OFR001', baseCost, weight, distance);
-        expect(discount).toBe(0);
+    test('should return false if offer is not applicable due to weight', () => {
+        expect(offer.isApplicable(150, 100)).toBe(false);
     });
 
-    it('should apply correct discount for OFR002 when applicable', () => {
-        const offerService = new OfferService();
-        const baseCost = 200;
-        const weight = 150;
-        const distance = 100;
-
-        const discount = offerService.getDiscount('OFR002', baseCost, weight, distance);
-        expect(discount).toBeCloseTo(14, 2);
-    });
-
-    it('should return 0 discount if offer code does not exist', () => {
-        const offerService = new OfferService();
-        const discount = offerService.getDiscount('INVALID', 300, 100, 50);
-        expect(discount).toBe(0);
+    test('should return the correct discount', () => {
+        const cost = 100;
+        expect(offer.calculateDiscount(cost)).toBe(10);
     });
 });
+
+
+
+
+
+describe('OfferService', () => {
+    const offerService = new OfferService();
+
+    test('should return the correct discount for a valid offer', () => {
+        const pkgData = {
+            id: 'pkg123',
+            weight: 80,
+            distance: 100,
+            offerCode: 'OFR001',
+            discount: 0,
+            totalCost: 0,
+            deliveryTime: null,
+        };
+
+        const pkg = new Package(pkgData);
+        const baseCost = 200;
+
+        // Assuming getDiscount is correctly set up
+        const discount = offerService.getDiscount(pkg.getOfferCode(), baseCost, pkg.getWeight(), pkg.getDistance());
+        expect(discount).toBe(20); // 10% of 200 is 20
+
+        offerService.applyDiscount(pkg, baseCost);
+        expect(pkg.getDiscount()).toBe(20);
+        expect(pkg.getTotalCost()).toBe(180); // Base cost 200 - discount 20 = 180
+    });
+});
+
