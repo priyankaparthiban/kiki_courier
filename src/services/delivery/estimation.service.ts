@@ -1,5 +1,5 @@
 import { Package } from '../../models';
-import { PackageData, DeliveryResult, IVehicle, IPackage } from '../../types';
+import { PackageData, DeliveryResult, IPackage } from '../../types';
 import { CostCalculator, OfferService, VehicleScheduler } from '..';
 import { InvalidPackageDetailsException, NoVehiclesAvailableException } from '../../exceptions';
 
@@ -21,8 +21,9 @@ export class DeliveryCostCalculator {
         return inputs.map(p => {
             try {
                 return new Package(p);
-            } catch (e: any) {
-                throw new InvalidPackageDetailsException(p.id, e.message);
+            } catch (e: unknown) {
+                const message = e instanceof Error ? e.message : 'Unknown error';
+                throw new InvalidPackageDetailsException(p.id, message);
             }
         });
     }
@@ -42,7 +43,7 @@ export class DeliveryCostCalculator {
         }));
     }
 
-    getCostAndTimeEstimation(inputs: PackageData[], vehicles: IVehicle[]): DeliveryResult[] {
+    getCostAndTimeEstimation(inputs: PackageData[]): DeliveryResult[] {
         const packages = this.createPackages(inputs);
 
         if (!this.vehicleSchedulerService) {

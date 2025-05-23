@@ -1,5 +1,5 @@
 import { parseInputStrings } from '../utils';
-import { askBaseDetails, askPackageDetails, createInterface, outputResults, createDeliveryCalculator, handleError } from './helpers'
+import { askBaseDetails, askPackageDetails, createInterface, outputResults, createDeliveryCalculator, handleError } from './helpers';
 import { DeliveryResult } from '../types';
 async function main() {
     const rl = createInterface();
@@ -15,13 +15,12 @@ async function main() {
         const { packages } = parseInputStrings(`${baseCost} ${noOfPackages}`, packageInputs);
 
         // Step 4: Instantiate required services
-        const deliveryCalculator = createDeliveryCalculator(baseCost)
+        const deliveryCalculator = createDeliveryCalculator(baseCost);
 
         // Step 5: Get cost estimation
         const results: DeliveryResult[] = deliveryCalculator.getCostEstimation(packages);
 
         // Step 6: Output results
-        console.log('\nOutput:');
         outputResults(results);
 
     } catch (err) {
@@ -31,4 +30,4 @@ async function main() {
     }
 }
 
-main();
+void main();

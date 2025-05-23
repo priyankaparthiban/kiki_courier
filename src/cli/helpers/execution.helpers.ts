@@ -1,5 +1,5 @@
 import { CostCalculator, OfferService, VehicleScheduler, DeliveryCostCalculator } from '../../services';
-import { IVehicle } from '../../types';
+import { IVehicle, DeliveryResult } from '../../types';
 import { UnknownException } from '../../exceptions';
 
 export function createDeliveryCalculator(
@@ -17,7 +17,7 @@ export function createDeliveryCalculator(
   );
 }
 
-export function outputResults(results: any[]): void {
+export function outputResults(results: DeliveryResult[]): void {
   console.log('\nOutput:');
   results.forEach(r => {
     const line = [r.id, r.discount, r.totalCost, r.deliveryTime]

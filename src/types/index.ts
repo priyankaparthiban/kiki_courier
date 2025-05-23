@@ -49,6 +49,13 @@ export interface Offer {
     maxDistance: number;
 }
 
+// IOffer represents the essential behaviour of a offer.
+export interface IOffer {
+    code: string;
+    isApplicable(weight: number, distance: number): boolean;
+    calculateDiscount(cost: number): number;
+}
+
 // VehicleData represents the essential data of a vehicle.
 export interface VehicleData {
     id: number;

@@ -1,7 +1,7 @@
-import { Offer } from '../types';
+import { Offer, IOffer } from '../types';
 
 // The OfferModel encapsulates the logic for applying and validating offers.
-export class OfferModel implements Offer {
+export class OfferModel implements Offer, IOffer {
     code: string;
     discountPercent: number;
     minWeight: number;

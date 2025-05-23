@@ -1,5 +1,5 @@
 import { parseInputStrings, parseVehicleInput } from '../utils';
-import { askBaseDetails, askPackageDetails, createInterface, askVehicleDetails, outputResults, createDeliveryCalculator, handleError } from './helpers'
+import { askBaseDetails, askPackageDetails, createInterface, askVehicleDetails, outputResults, createDeliveryCalculator, handleError } from './helpers';
 import { DeliveryResult } from '../types';
 async function main() {
     const rl = createInterface();
@@ -21,14 +21,12 @@ async function main() {
         const vehicles = parseVehicleInput(vehicleLine);
 
         // Step 6: Instantiate required services
-        const deliveryCalculator = createDeliveryCalculator(baseCost, vehicles)
+        const deliveryCalculator = createDeliveryCalculator(baseCost, vehicles);
 
         // Step 7: Get cost + time estimation
-        const results: DeliveryResult[] = deliveryCalculator.getCostAndTimeEstimation(packages, vehicles);
-        console.log("results", results);
+        const results: DeliveryResult[] = deliveryCalculator.getCostAndTimeEstimation(packages);
 
         // Step 8: Output results
-        console.log('\n Output:');
         outputResults(results);
 
     } catch (err) {
@@ -38,4 +36,4 @@ async function main() {
     }
 }
 
-main();
+void main();

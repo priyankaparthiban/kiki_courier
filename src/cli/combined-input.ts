@@ -1,10 +1,7 @@
 import { parseInputStrings, parseVehicleInput, } from '../utils';
-import { askMultilineInput, createInterface, outputResults, createDeliveryCalculator, handleError } from './helpers'
+import { askMultilineInput, createInterface, outputResults, createDeliveryCalculator, handleError } from './helpers';
 import {
-    CostCalculator,
-    OfferService,
     DeliveryCostCalculator,
-    VehicleScheduler,
 } from '../services';
 import { DeliveryResult, IVehicle } from '../types';
 
@@ -24,30 +21,23 @@ async function main() {
         const { packages: inputPackages } = parseInputStrings(lines[0], packageLines);
 
         // Step 4: Instantiate required services
-        const baseCostCalculator = new CostCalculator(baseCost);
-        const offerService = new OfferService();
-
         let deliveryCalculator: DeliveryCostCalculator;
 
         if (hasVehicleInfo) {
             const vehicles: IVehicle[] = parseVehicleInput(vehicleLine);
-            const vehicleScheduler = new VehicleScheduler(vehicles);
-
-            deliveryCalculator = createDeliveryCalculator(baseCost, vehicles)
+            deliveryCalculator = createDeliveryCalculator(baseCost, vehicles);
 
             // Step 5: Get cost + time estimation
-            const results: DeliveryResult[] = deliveryCalculator.getCostAndTimeEstimation(inputPackages, vehicles);
+            const results: DeliveryResult[] = deliveryCalculator.getCostAndTimeEstimation(inputPackages);
 
             // Step 6: Output results
-            console.log('\nOutput:');
             outputResults(results);
         } else {
-            deliveryCalculator = createDeliveryCalculator(baseCost)
+            deliveryCalculator = createDeliveryCalculator(baseCost);
             // Step 5: Get cost estimation
             const results: DeliveryResult[] = deliveryCalculator.getCostEstimation(inputPackages);
 
             // Step 6: Output results
-            console.log('\nOutput:');
             outputResults(results);
         }
     } catch (err) {
@@ -57,4 +47,4 @@ async function main() {
     }
 }
 
-main();
+void main();
